@@ -1,7 +1,8 @@
 import os
-os.environ["REPLICATE_API_TOKEN"]= 'r8_6ZXkCoYm0Ft6H7cjBKzaZHl0rt2VqiS0QKP49'
-from guidance import models, system, user, assistant, gen
 import replicate
+
+os.environ["REPLICATE_API_TOKEN"]= 'key-for-replicate'
+
 def assessment_def_block(
         target_word,
         sentences,
@@ -15,7 +16,6 @@ def assessment_def_block(
     if lang == 'Russian':
         requirements = "Создаваемое определение должно быть кратким. Разрешается максимум десять слов."
         instructions = [f'Представьте, что вы лексикограф, учитывая заглавное слово {target_word} на {lang}, напишите словарное определение его значения в следующих предложениях.']
-        #sentences_list = [f'{i+1}. {sen}, где {w} — заглавное слово.' for i, (sen, w) in enumerate(zip([sentences[0]], [headwords[0]]))]        
         sentences_list = [f'{i+1}. {sen}.' for i, sen in enumerate([sentences[0]])]
     else:
         requirements = "Luodun määritelmän tulee olla ytimekäs. Enintään kymmenen sanaa on sallittu."        

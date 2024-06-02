@@ -75,11 +75,9 @@ def neighbor_similarity(smset1, smset2, static_embeds):
 
 
 def cloud_distance(cloud, static_embeds, keyword, k=12):
-    # index_voc, voc_index, embeddings = static_embeds
     nbs_cloud = []
     sim_matrix = np.ones((len(cloud), len(cloud)), dtype='float32')
     for i, point in enumerate(cloud):
-        # print("{} itr {}".format(keyword, i))
         nbs = clear_sim_words(keyword, point, k, static_embeds)
         for j, nbs_ in enumerate(nbs_cloud):
             sim = neighbor_similarity(nbs, nbs_, static_embeds)
@@ -90,11 +88,8 @@ def cloud_distance(cloud, static_embeds, keyword, k=12):
 
 
 def cloud_distance_mp_unit(pairs, nbs_cloud, static_embeds, pid, return_dict):
-    # print(" cloud distance mp unit starting pid {} pairs num {}".format(pid, len(pairs)))
     sim_cloud = {}
     for pair in tqdm(pairs):
-        # if i % 200 == 0:
-        #     print(" process id {} progress {} %".format(pid, i/len(pairs)*100))
         nbs = nbs_cloud[pair[0]]
         nbs_ = nbs_cloud[pair[1]]
         sim = neighbor_similarity(nbs, nbs_, static_embeds)
@@ -103,7 +98,6 @@ def cloud_distance_mp_unit(pairs, nbs_cloud, static_embeds, pid, return_dict):
 
 
 def cloud_distance_mp(cloud, static_embeds, keyword, k=12, p_number=8, language=None):
-    # index_voc, voc_index, embeddings = static_embeds
     nbs_cloud = []
     pairs = []
     sim_matrix = np.ones((len(cloud), len(cloud)), dtype='float32')
@@ -120,7 +114,6 @@ def cloud_distance_mp(cloud, static_embeds, keyword, k=12, p_number=8, language=
     manager = mp.Manager()
     return_dict = manager.dict()
 
-    # print(" Total pairs ", len(pairs))
     procs = []
     step = len(pairs) // p_number
     for pid in range(p_number):
@@ -149,7 +142,6 @@ def gen_cloud_distance(cloud, static_embeds, keyword, language, time, k=12, save
     sim_matrix, nbs_cloud = cloud_distance_mp(cloud, static_embeds, keyword, k=k, language=language)
     utils.create_filepath_dir(matrix_path)
     np.save(matrix_path, sim_matrix)
-    # ts.plt_weights(sim_matrix)
     if save_nbs:
         utils.save_to_disk(nbs_path, nbs_cloud)
     return sim_matrix, nbs_cloud
@@ -251,7 +243,6 @@ def merge_cluster_once(clusters, cluster_simdist, cloud, static_embeds, keyword,
 def cloud_clusters_reduce(clusters, cluster_simdist, sim_matrix, cloud, static_embeds, keyword,
                           rt=0.9, drop=False, language=None):
     drop_semantic = []
-    # print("cluster_simdist shape", cluster_simdist.shape)
     while np.max(cluster_simdist) > rt:
         clusters, rip_dist, drop_st =\
             merge_cluster_once(clusters, cluster_simdist, cloud, static_embeds, keyword, drop=drop, language=language)
@@ -265,24 +256,7 @@ def subsmantic_from_clusters(clusters, cluster_simdist, sim_matrix,
                              cloud, static_embeds, keyword, sct=0.6, drop=True):
     hf_clusters = []
     lf_semantic = []
-    # for i, clu in enumerate(clusters):
-    #     # generaly hf_t is relate to the number of cloud points and the rt threshold
-    #     # the higher points number the higher hf_t,
-    #     # the lower rt threshold the higher hf_t.
-    #     # it's hard to make a single best choice for different corpus.
-    #     # hf_t = 5 if len(cloud) > 300 else 3
-    #     hf_t = len(cloud)//100 if len(cloud)//100 > 5 else 5
-    #     if len(clu.points) >= hf_t:
-    #         hf_clusters.append(clu)
-    #         # print(clu.c_neighbors)
-    #     elif len(clu.points) > 1:
-    #         lf_semantic.append(clu)
-    # if len(hf_clusters) == 0:
-    #     hf_clusters = []
-    #     lf_semantic = []
-    #     for i, clu in enumerate(clusters):
-    #          if len(clu.points) >= 2:
-    #              hf_clusters.append(clu)
+
     hf_clusters = clusters
 
     hf_cluster_simdist = clusters_distances(hf_clusters, sim_matrix, None, static_embeds)
@@ -291,16 +265,6 @@ def subsmantic_from_clusters(clusters, cluster_simdist, sim_matrix,
         cloud_clusters_reduce(hf_clusters, hf_cluster_simdist, sim_matrix,
                               cloud, static_embeds, keyword, rt=sct, drop=drop)
     lf_semantic += drop_semantic
-
-    # for i, clu in enumerate(hf_semantic):
-    #     print(">>>>> high cid {} points {} ".format(i, clu.points))
-    #     print(clu.c_neighbors)
-
-    # for i, clu in enumerate(lf_semantic):
-    #     print(">>>>> low cid {} points {} ".format(i, clu.points))
-    #     print(clu.c_neighbors)
-
-    # print(">>>>>>>  <<<<<<<<<< ", polysemy_simdist)
     return hf_semantic, lf_semantic
 
 
@@ -347,26 +311,12 @@ def cloud_cluster_rt(sim_matrix, nbs_cloud, cloud, static_embeds, keyword, rt, k
     return clusters, cluster_simdist
 
 
-# def cloud_cluster(cloud, static_embeds, keyword, language, k,
-#                   usecache=False, subsample=True, rt=0.73, sct=0.6, cache_time=None):
 def cloud_cluster(cloud, static_embeds, keyword, language, k,
                   usecache=False, subsample=True, t=0.8, cache_time=None):
     rt = t
     sct = t
-    # cache_time should be '1' or '2'
-    # time = cache_time
-    # hf_path = './.cache/{}/words/{}/cloud_sim_matrix/sct{}/rt{}/k{}_cloud_hfsc_t{}.pkl'.\
-    #     format(language, keyword, sct, rt, k, time)
-    # lf_path = './.cache/{}/words/{}/cloud_sim_matrix/sct{}/rt{}/k{}_cloud_lfsc_t{}.pkl'.\
-    #     format(language, keyword, sct, rt, k, time)
-
-    # hf_semantic = utils.load_from_disk(hf_path)
-    # lf_semantic = utils.load_from_disk(lf_path)
-    # if usecache and hf_semantic is not None and lf_semantic is not None:
-    #     return hf_semantic, lf_semantic
 
     subsample_length = 400
-    # subsample_length = 1200
     if subsample:
         cloud = cloud[:subsample_length]
 
@@ -380,8 +330,6 @@ def cloud_cluster(cloud, static_embeds, keyword, language, k,
         subsmantic_from_clusters(clusters, cluster_simdist, sim_matrix,
                                  cloud, static_embeds, keyword, sct=sct)
 
-    # utils.save_to_disk(hf_path, hf_semantic)
-    # utils.save_to_disk(lf_path, lf_semantic)
     return hf_semantic, lf_semantic
 
 

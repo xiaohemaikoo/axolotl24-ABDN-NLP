@@ -16,7 +16,6 @@ def find_files(dir):
     for file in all_files(dir):
         # convert to linux file path
         file = '/'.join(file.split('\\'))
-        # print(file)
         files.append(file)
     return files
 
@@ -66,12 +65,10 @@ def save_sendata_as_txt(path, sendata):
 
 
 def update_static_embeds(static_embeds, stat_emb):
-    # print("len(stat_emb)", len(stat_emb))
     index_voc, voc_index, embeddings = static_embeds
     idxs = [key for key in index_voc]
     voc_len = np.max(idxs) if len(idxs)>0 else 0
     voc_len += 1
-    # print("voc_len start ", voc_len)
     for word in stat_emb:
         if word not in voc_index:
             voc_index[word] = voc_len
@@ -81,11 +78,7 @@ def update_static_embeds(static_embeds, stat_emb):
         else:
             embeddings[voc_index[word]] = \
                 (embeddings[voc_index[word]] + stat_emb[word])/2
-    # print("voc_len end ", voc_len)
     static_embeds = (index_voc, voc_index, embeddings)
-
-    # sim = utils.cosine_similarity(e, stat_emb['Tastatur'])
-    # print("Tastatur ", sim)
 
     return static_embeds
 
@@ -179,7 +172,6 @@ def stop_words(language=None):
         return []
     fun = support_languages[language]
     swl = fun()
-    # print("Stop words:", swl)
     return swl
 
 def word_voc(word, voc_index, embeddings):

@@ -22,7 +22,7 @@ PERIOD_COLUMN = "period"
 torch.manual_seed(0)
 random.seed(0)
 np.random.seed(0)
-#torch.use_deterministic_algorithms(True)
+
 logging.basicConfig(level=logging.INFO)
 
 
@@ -78,9 +78,7 @@ def main():
         cloud1, static_embeds1 = gen_cloud(target_word, old_glosses, cache_path='./.cache/words/{}/1/sen_emb/'.format(target_word))
         cloud2, static_embeds2 = gen_cloud(target_word, new_examples, cache_path='./.cache/words/{}/2/sen_emb/'.format(target_word))
         static_embeds = utils.merge_static_embeds(static_embeds1, static_embeds2)
-        # sense_clu1, _ = \
-        #         sc.cloud_cluster(cloud1, static_embeds, target_word, 'ru', k=5, t=t,
-        #                          cache_time='1')
+
         sense_clu2, _ = \
                 sc.cloud_cluster(cloud2, static_embeds, target_word, args.lang, k=args.k, t=args.st,
                                  cache_time='2')
@@ -89,7 +87,6 @@ def main():
         seen = set()
         for label, clu in enumerate(sense_clu2):
             found = ""
-            # examples_indices = np.where(clustering.labels_ == label)[0]
             examples_indices = clu.points
             examples = [new_examples[i] for i in examples_indices]
             for emb2, defs, sense_old in zip(cloud1, old_glosses, senses_old):
@@ -109,8 +106,6 @@ def main():
             row_number = targets[targets[USAGE_ID_COLUMN] == usage_id].index
             targets.loc[row_number, SENSE_ID_COLUMN] = system_answer
 
-        #  tmp test and run one target word
-        # break
     logging.info(f"Writing the result to {args.pred}")
     targets.to_csv(args.pred, sep="\t", index=False)
 

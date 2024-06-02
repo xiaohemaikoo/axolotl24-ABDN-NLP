@@ -1,7 +1,6 @@
 import torch
 import utils
 import numpy as np
-#from datasets import load_dataset
 from transformers import BertTokenizer, AutoModel, AutoTokenizer
 from transformers import BertModel
 
@@ -50,11 +49,9 @@ def refresh_word_embeddings(input_ids, outs, stat_emb, target_embeds, keyword, t
                     else:
                         stat_emb[last_word] = [avg]
                     if keyword == last_word:
-                        # target_embeds.append(avg)
                         targets_in_sen.append(avg)
 
                 last_word = mor
-                # last_word_v.append(outs[i][j])
                 last_word_v = [outs[i][j]]
         if sen_emb:
             sen_embs = []
@@ -67,19 +64,12 @@ def refresh_word_embeddings(input_ids, outs, stat_emb, target_embeds, keyword, t
         # and assume keyword appears in the same sentence always has same meanings.
         if len(targets_in_sen) > 0:
             cloud_point = np.mean(np.array(targets_in_sen), axis=0)
-            # print("cloud_point shape", cloud_point.shape)
             target_embeds.append(cloud_point)
-        # else:
-        #     # due to max_length = 80, some sentence may not have keyword appear with in max_length
-        #     print("targets_in_sen length", len(targets_in_sen))
-        #     print("token.decode(ids) is ", token.decode(ids))
 
     return stat_emb
 
 
 def avg_stat_emb(stat_emb):
-    # print("origin stat len ", len(stat_emb))
-    # since the axolotl data has few examples for the target set emb_threshold = 1 rather than 2
     emb_threshold = 1
     del_keys = []
     for key in stat_emb:
@@ -91,7 +81,6 @@ def avg_stat_emb(stat_emb):
         ems = np.array(stat_emb[key])
         avg = np.mean(ems, axis=0)
         stat_emb[key] = avg
-    # print("after del stat len ", len(stat_emb))
     return stat_emb
 
 
@@ -109,7 +98,7 @@ def bert_cloud(keyword, sendata, prbert_model, sen_emb=False):
         input_ids = data['input_ids']
         attention_mask = data['attention_mask']
         token_type_ids = data['token_type_ids']
-        # use cuda
+
         if torch.cuda.is_available():
             input_ids = input_ids.cuda()
             attention_mask = attention_mask.cuda()
@@ -123,7 +112,6 @@ def bert_cloud(keyword, sendata, prbert_model, sen_emb=False):
                                          shuffle=False,
                                          drop_last=True)
     p_model = BertModel.from_pretrained(prbert_model)
-    # use cuda
     if torch.cuda.is_available():
         p_model = p_model.cuda()
 
@@ -134,9 +122,6 @@ def bert_cloud(keyword, sendata, prbert_model, sen_emb=False):
     target_embeds = []
     stat_emb = {}
     for i, (input_ids, attention_mask, token_type_ids) in enumerate(loader):
-        # print("loop i ", i)
-        # if i % 50 == 0:
-        #     print("loop i ", i)
         out = model(input_ids=input_ids,
                     attention_mask=attention_mask,
                     token_type_ids=token_type_ids)
@@ -145,8 +130,6 @@ def bert_cloud(keyword, sendata, prbert_model, sen_emb=False):
     stat_emb = avg_stat_emb(stat_emb)
 
     cloud = target_embeds
-    # print("cloud points number ", len(cloud))
-    # print("static embeddings number ", len(stat_emb))
     return cloud, stat_emb
 
 

@@ -7,3 +7,5 @@ pandas==2.2.0
 evaluate>=0.4.1
 sacrebleu>=2.4.0
 bert_score>=0.3.13
+guidance==0.1.13
+replicate==0.25.2
