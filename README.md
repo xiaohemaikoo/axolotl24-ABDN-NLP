@@ -36,7 +36,7 @@ python3 track2_gpt.py --test_data ../../data/axolotl.fi/axolotl.dev.fi.tsv --pre
 python3 track2_llama.py --test_data ../../data/axolotl.fi/axolotl.dev.fi.tsv --predictions_file ../baselines/pred_dev_fi.track2.tsv --lang fi
 ```
 
-### Evaluating results for track 1
+### Evaluating results for track 2
 
 ```commandline
 python3 scorer_track2.py ../baselines/pred_dev_fi.track2.tsv ../../data/axolotl.fi/axolotl.dev.fi.tsv scores.fi.txt
