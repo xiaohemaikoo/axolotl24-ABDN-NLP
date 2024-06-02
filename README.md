@@ -33,7 +33,7 @@ python3 track2_gpt.py --test_data ../../data/axolotl.fi/axolotl.dev.fi.tsv --pre
 ### Or running script to generate novel sense definition via LLAMA for track 2
 
 ```commandline
-python3 track2_gpt.py --test_data ../../data/axolotl.fi/axolotl.dev.fi.tsv --predictions_file ../baselines/pred_dev_fi.track2.tsv --lang fi
+python3 track2_llama.py --test_data ../../data/axolotl.fi/axolotl.dev.fi.tsv --predictions_file ../baselines/pred_dev_fi.track2.tsv --lang fi
 ```
 
 ### Evaluating results for track 1
