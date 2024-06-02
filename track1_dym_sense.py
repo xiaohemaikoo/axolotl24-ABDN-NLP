@@ -82,7 +82,7 @@ def main():
         #         sc.cloud_cluster(cloud1, static_embeds, target_word, 'ru', k=5, t=t,
         #                          cache_time='1')
         sense_clu2, _ = \
-                sc.cloud_cluster(cloud2, static_embeds, target_word, 'none', k=args.k, t=args.st,
+                sc.cloud_cluster(cloud2, static_embeds, target_word, args.lang, k=args.k, t=args.st,
                                  cache_time='2')
 
         exs2senses = {}
